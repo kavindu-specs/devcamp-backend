@@ -1,60 +1,72 @@
+const errorResponse = require("../utils/errorResponse")
 const BootCamp =require("../models/bootcamp")
 
 exports.getCamps = async (req,res,next)=>{
 
-    const bootsCamps = await BootCamp.find();
     try{
-        res.status(200).json({"status":true,"data":bootsCamps}) 
+        const bootsCamps = await BootCamp.find();
+        return res.status(200).json({"status":true,"data":bootsCamps}) 
     }catch(err){
-        res.status(400).json({"status":false,"msg":"error in getting data"}) 
+        next(err)
     }
    
 }
 exports.getCamp = async (req,res,next)=>{
-    const bootsCamp = await BootCamp.findById(req.params.id);
+    
     try{
+        const bootsCamp = await BootCamp.findById(req.params.id);
 
         if(!bootsCamp){
-            res.status(204).json({"status":false});
+            return next(new errorResponse(`bootcamp not found ${req.params.id}`,404));
         }
-        res.status(200).json({"status":true,"data":bootsCamp}) 
+        return res.status(200).json({"status":true,"data":bootsCamp}) 
     }catch(err){
-        res.status(400).json({"status":false,"msg":"error in getting data"}) 
+        return next(new errorResponse(`bootcamp not found ${req.params.id}`,404));
     }
 
    
 }
 
 exports.createCamp = async (req,res,next)=>{
-    const bootCamps = await BootCamp.create(req.body);
-    res.status(201).json({"status":true,"msg":"create Camp","data":bootCamps})
+    try{
+        const bootCamps = await BootCamp.create(req.body);
+        return res.status(201).json({"status":true,"msg":"create Camp","data":bootCamps})
+    }catch(err){
+        next(err);
+    }
+   
 }
 
 exports.updateCamp = async (req,res,next)=>{
+    try{
     const bootsCamp = await BootCamp.findByIdAndUpdate(req.params.id,req.body,{
         new:true,
         runValidators:true
     });
-    try{
+   
 
         if(!bootsCamp){
-            res.status(204).json({"status":false});
+           return res.status(204).json({"status":false});
         }
-        res.status(200).json({"status":true,"data":bootsCamp}) 
+        return res.status(200).json({"status":true,"data":bootsCamp}) 
     }catch(err){
-        res.status(400).json({"status":false,"msg":"error in getting data"}) 
+        next(err);
+       
     } 
 }
 
 exports.deleteCamp = async (req,res,next)=>{ 
-    const bootsCamp = await BootCamp.findByIdAndDelete(req.params.id);
+   
     try{
+        const bootsCamp = await BootCamp.findByIdAndDelete(req.params.id);
 
     if(!bootsCamp){
-        res.status(204).json({"status":false});
+       return res.status(204).json({"status":false});
+    }else{
+       return res.status(200).json({"status":true,"data":{}}) 
     }
-    res.status(200).json({"status":true,"data":{}}) 
+    
 }catch(err){
-    res.status(400).json({"status":false,"msg":"error in deleting data"}) 
+    next(err);
 }   
 }

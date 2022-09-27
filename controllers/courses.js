@@ -1,37 +1,16 @@
 const errorResponse = require("../utils/errorResponse")
-const BootCamp =require("../models/bootcamp");
-const geocoder = require("../utils/geocoder");
+const Course =require("../models/course");
+
 const { query } = require("express");
 
-exports.getCamps = async (req,res,next)=>{
+exports.getCourses = async (req,res,next)=>{
 
     try{
 
-        let queryStr = JSON.stringify(req.query);
+        const bootcamp_id = req.params.bootcamp;
+        let query = Course.find().populate({path:"bootcamp",select:"name"});
 
-        let reqQr = {...req.query}
-     
-        const removeField = ["select"]
-
-        removeField.forEach(param => delete reqQr[param])
-
-        queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/,match=>`$${match}`)
-    
-
-        let query = BootCamp.find(JSON.parse(queryStr));
-
-        if(req.query.select){
-            const fields = req.query.select.split(',').join(' ')
-            query = query.select(fields)
-        }
-
-        if(req.query.sort){
-            const sortBy = req.query.sort.split(',').join(' ')
-            query = query.sort(sortBy)
-        }else{
-            query = query.sort("-createdAt")
-        }
-
+      
         const page = parseInt(req.query.page,10)||1;
         const limit = parseInt(req.query.limit,10)||10;
 
@@ -39,8 +18,8 @@ exports.getCamps = async (req,res,next)=>{
 
         query = query.skip(skip).limit(limit);
 
-        const bootsCamps = await query;
-        return res.status(200).json({"status":true,"data":bootsCamps}) 
+        const courses = await query;
+        return res.status(200).json({"status":true,"data":courses}) 
     }catch(err){
         next(err)
     }

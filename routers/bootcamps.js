@@ -12,5 +12,5 @@ router.route('/:id').get(bootcampController.getCamp)
                     .put(bootcampController.updateCamp)
                     .delete(bootcampController.deleteCamp)
 
-
+router.route('/radius/:zipcode/:distance').get(bootcampController.getBootcampsInRadius);
 module.exports = router;

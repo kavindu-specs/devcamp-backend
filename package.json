@@ -10,8 +10,11 @@
   "author": "Kavindu Prabodya",
   "license": "ISC",
   "dependencies": {
+    "color": "^4.2.3",
+    "colors": "^1.4.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
-    "mongoose": "^6.4.6"
+    "mongoose": "^6.4.6",
+    "node-geocoder": "^4.2.0"
   }
 }

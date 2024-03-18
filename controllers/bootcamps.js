@@ -63,8 +63,17 @@ exports.getCamp = async (req,res,next)=>{
 }
 
 exports.createCamp = async (req,res,next)=>{
+
     try{
+
+        const exsitingBootcamp = await BootCamp.findOne({user:req.user.id})
+
+        if(exisitingBootcamp && req.user.role !== "admin"){
+            return res.status(400).json({"status":false,"msg":`The user ${req.user.name} already has a bootcamp`,"data":null})
+        }
+
         const bootCamps = await BootCamp.create(req.body);
+
         return res.status(201).json({"status":true,"msg":"create Camp","data":bootCamps})
     }catch(err){
         next(err);
@@ -73,20 +82,27 @@ exports.createCamp = async (req,res,next)=>{
 }
 
 exports.updateCamp = async (req,res,next)=>{
-    try{
-    const bootsCamp = await BootCamp.findByIdAndUpdate(req.params.id,req.body,{
-        new:true,
-        runValidators:true
-    });
-   
 
+    try{
+
+        const bootsCamp = await BootCamp.findByIdAndUpdate(req.params.id,req.body,{
+            new:true,
+            runValidators:true
+        });
+
+        if(bootsCamp.user.toString()!=req.user.id && req.user.role !=="admin"){
+            return res.status(400).json(
+                {"status":false,"msg":"user is not authorized to update this bootcamp,","data":null}
+                )
+        }
+   
         if(!bootsCamp){
            return res.status(204).json({"status":false});
         }
+
         return res.status(200).json({"status":true,"data":bootsCamp}) 
     }catch(err){
         next(err);
-       
     } 
 }
 
@@ -95,11 +111,11 @@ exports.deleteCamp = async (req,res,next)=>{
     try{
         const bootsCamp = await BootCamp.findByIdAndDelete(req.params.id);
 
-    if(!bootsCamp){
-       return res.status(204).json({"status":false});
-    }else{
-       return res.status(200).json({"status":true,"data":{}}) 
-    }
+       if(!bootsCamp){
+           return res.status(204).json({"status":false});
+       }else{
+           return res.status(200).json({"status":true,"data":{}}) 
+       }
     
 }catch(err){
     next(err);
